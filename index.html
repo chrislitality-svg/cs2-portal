@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CS2 管家</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --ease:cubic-bezier(0.16,1,0.3,1);
+  --ink:#1a1a2e;--ink2:#52525b;--ink3:#a1a1aa;
+  --line:rgba(0,0,0,.06);--tile:#f5f5f4;--tile-h:#e7e5e4;
+  --orange:#f97316;--gold:#b45309;--blue:#2563eb;
+  --font:"PingFang SC","Heiti SC","SF Pro Display",-apple-system,BlinkMacSystemFont,"Microsoft YaHei",sans-serif;
+}
+body{font-family:var(--font);color:var(--ink);font-size:14px;line-height:1.6;background:#fafaf9;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 18% -4%,rgba(249,115,22,.06) 0%,transparent 48%),radial-gradient(ellipse at 82% 104%,rgba(59,130,246,.045) 0%,transparent 50%)}
+
+.app{position:relative;z-index:1}
+
+header{background:rgba(255,255,255,.72);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:50}
+.h-inner{max-width:1400px;margin:0 auto;padding:0 40px;height:54px;display:flex;align-items:center;justify-content:space-between}
+.logo-area{display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,#f97316,#fb923c);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(249,115,22,.28);color:#fff;font-size:13px;font-weight:800;letter-spacing:-.02em}
+.logo-text{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.03em}
+.h-tag{font-size:11px;color:var(--ink3);font-weight:600;letter-spacing:.02em}
+
+/* ===== Hero：纯 CSS 高级感，无大图 ===== */
+.hero{width:100%;padding:30px 40px 0;max-width:1400px;margin:0 auto}
+.hero-card{position:relative;width:100%;aspect-ratio:30/9;min-height:210px;border-radius:24px;overflow:hidden;
+  background:
+    radial-gradient(120% 150% at 90% 130%,rgba(249,115,22,.55) 0%,transparent 52%),
+    radial-gradient(90% 130% at 6% -25%,rgba(129,140,248,.20) 0%,transparent 55%),
+    linear-gradient(125deg,#15141f 0%,#1d1b2c 52%,#2c1d13 100%);
+  box-shadow:0 22px 52px rgba(20,16,30,.22)}
+.hero-card::before{content:'';position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.06) 1px,transparent 1px);background-size:22px 22px;-webkit-mask:linear-gradient(100deg,transparent,#000 55%);mask:linear-gradient(100deg,transparent,#000 55%);opacity:.7}
+.hero-ring{position:absolute;right:-60px;top:50%;transform:translateY(-50%);width:340px;height:340px;opacity:.16;color:#fb923c;pointer-events:none}
+.hero-inner{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:center;padding:0 clamp(28px,5vw,64px)}
+.hero-inner h1{font-size:clamp(30px,4.2vw,52px);font-weight:900;letter-spacing:-.045em;color:#fff;line-height:1.04;margin-bottom:10px;text-shadow:0 2px 24px rgba(0,0,0,.28)}
+.hero-inner h1 span{background:linear-gradient(135deg,#fdba74,#fbbf24);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-inner p{color:rgba(255,255,255,.78);font-size:clamp(13px,1.25vw,15.5px);letter-spacing:-.01em;max-width:520px}
+.hero-badges{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.hero-badge{font-size:11px;font-weight:600;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.16);padding:5px 12px;border-radius:999px;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+
+.content{max-width:1400px;margin:26px auto 0;padding:0 40px;display:grid;grid-template-columns:1fr 1fr 340px;gap:20px;align-items:start}
+
+.card{position:relative;background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px 28px 28px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:13px;overflow:hidden;transform-style:preserve-3d;will-change:transform;cursor:pointer;min-height:218px}
+.card::before{content:'';position:absolute;inset:-1px;border-radius:21px;padding:1px;background:linear-gradient(135deg,transparent 30%,rgba(249,115,22,.3),rgba(251,191,36,.2),transparent 70%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .4s var(--ease);pointer-events:none}
+.card:hover::before{opacity:1}
+.card-glow{position:absolute;width:250px;height:250px;border-radius:50%;background:radial-gradient(circle,rgba(249,115,22,.12),transparent 70%);pointer-events:none;opacity:0;transition:opacity .3s;transform:translate(-50%,-50%);z-index:0}
+.card:hover .card-glow{opacity:1}
+.card-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;transition:transform .4s var(--ease)}
+.card:hover .card-icon{transform:translateY(-2px) scale(1.05)}
+.card.c-zl .card-icon{background:linear-gradient(135deg,#fef3c7,#fde68a);color:var(--gold)}
+.card.c-zs .card-icon{background:linear-gradient(135deg,#dbeafe,#bfdbfe);color:var(--blue)}
+.card h2{font-size:18px;font-weight:700;letter-spacing:-.02em;position:relative;z-index:1}
+.card p{color:var(--ink2);font-size:13px;line-height:1.6;position:relative;z-index:1}
+.card .tag{display:inline-block;padding:3px 10px;border-radius:8px;font-size:10px;font-weight:600;letter-spacing:.02em;position:relative;z-index:1;width:fit-content}
+.card.c-zl .tag{background:rgba(217,119,6,.08);color:var(--gold)}
+.card.c-zs .tag{background:rgba(37,99,235,.08);color:var(--blue)}
+.card-arrow{position:absolute;right:24px;bottom:26px;color:#d1d5db;font-size:22px;transition:all .4s var(--ease);z-index:1}
+.card:hover .card-arrow{color:var(--orange);transform:translateX(4px)}
+
+.news{background:#fff;border:1px solid var(--line);border-radius:20px;overflow:hidden;min-height:218px}
+.news-head{padding:18px 20px 14px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink);letter-spacing:-.01em}
+.news-head svg{color:var(--orange)}
+.news-list{max-height:330px;overflow-y:auto}
+.news-list::-webkit-scrollbar{width:4px}
+.news-list::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:4px}
+.news-item{display:block;padding:14px 20px;border-bottom:1px solid rgba(0,0,0,.03);text-decoration:none;color:inherit;transition:background .2s var(--ease);cursor:pointer}
+.news-item:last-child{border-bottom:none}
+.news-item:hover{background:var(--tile)}
+.news-date{font-size:10px;color:var(--ink3);font-weight:500;letter-spacing:.02em;display:block;margin-bottom:3px}
+.news-title{font-size:12px;font-weight:600;color:var(--ink);display:block;line-height:1.4;margin-bottom:2px}
+.news-desc{font-size:11px;color:var(--ink3);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.5}
+.news-empty{padding:32px 20px;text-align:center;color:var(--ink3);font-size:12px}
+.news-dot{width:6px;height:6px;border-radius:50%;background:var(--orange);display:inline-block;margin-right:6px;animation:pulse 2s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.footer{max-width:1400px;margin:46px auto 0;padding:20px 40px;text-align:center;color:#c4c4c4;font-size:11px;border-top:1px solid rgba(0,0,0,.04)}
+
+.anim-in{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease);will-change:opacity,transform}
+.anim-in.visible{opacity:1;transform:none}
+
+@media(max-width:900px){
+  .content{grid-template-columns:1fr;gap:16px}
+  .news{max-height:none}
+  .hero-card{aspect-ratio:auto;min-height:0;padding:0}
+  .hero-inner{position:relative;padding:30px 24px}
+  .hero-ring{width:200px;right:-50px}
+  .h-inner,.hero,.content,.footer{padding-left:16px;padding-right:16px}
+  .h-tag{display:none}
+}
+@media(min-width:901px) and (max-width:1100px){
+  .content{grid-template-columns:1fr 1fr;gap:16px}
+  .news{grid-column:1/-1}
+  .news-list{max-height:none;display:grid;grid-template-columns:1fr 1fr 1fr;gap:0}
+  .news-item{border-right:1px solid rgba(0,0,0,.03)}
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+<header>
+  <div class="h-inner">
+    <div class="logo-area">
+      <div class="logo-icon">CS</div>
+      <span class="logo-text">CS2 管家</span>
+    </div>
+    <span class="h-tag">你的 CS2 私人助手</span>
+  </div>
+</header>
+
+<div class="hero anim-in">
+  <div class="hero-card">
+    <svg class="hero-ring" viewBox="0 0 200 200" fill="none" stroke="currentColor" stroke-width="2"><circle cx="100" cy="100" r="92"/><circle cx="100" cy="100" r="60"/><circle cx="100" cy="100" r="28"/><path d="M100 0v40M100 160v40M0 100h40M160 100h40" stroke-width="3"/></svg>
+    <div class="hero-inner">
+      <h1>CS2 <span>管家</span></h1>
+      <p>饰品租赁管理 · 3D 战术沙盘，把租来的皮肤和地图道具点位都管得明明白白。</p>
+      <div class="hero-badges">
+        <span class="hero-badge">饰品到期提醒</span>
+        <span class="hero-badge">3D 道具点位</span>
+        <span class="hero-badge">多设备云同步</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="content">
+  <a href="/cs2/zl/" class="card c-zl anim-in" data-tilt>
+    <div class="card-glow"></div>
+    <div class="card-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/></svg>
+    </div>
+    <h2>我的租赁</h2>
+    <p>追踪你租来的 CS2 饰品，记录平台与到期时间，到期前自动提醒归还，再也不怕忘记还。</p>
+    <span class="tag">饰品租赁 · 到期提醒</span>
+    <span class="card-arrow">&rsaquo;</span>
+  </a>
+
+  <a href="/cs2/zs/" class="card c-zs anim-in" data-tilt>
+    <div class="card-glow"></div>
+    <div class="card-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+    </div>
+    <h2>3D 战术沙盘</h2>
+    <p>在 3D 地图上规划道具点位：投掷轨迹、弹墙折叠、同点位多道具、区域标注，数据多设备云同步。</p>
+    <span class="tag">3D · three.js</span>
+    <span class="card-arrow">&rsaquo;</span>
+  </a>
+
+  <div class="news anim-in">
+    <div class="news-head">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
+      CS2 动态
+    </div>
+    <div class="news-list" id="newsList">
+      <div class="news-empty">加载中...</div>
+    </div>
+  </div>
+</div>
+
+<div class="footer">CS2 管家 &copy; 2026</div>
+</div>
+
+<script>
+/* No auth required — public access */
+
+/* ---- Reveal Animations (IntersectionObserver) ---- */
+function initAnimations(){
+  var els=document.querySelectorAll('.anim-in');
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+    els.forEach(function(e){e.classList.add('visible')});return;
+  }
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){en.target.classList.add('visible');io.unobserve(en.target)}
+    });
+  },{threshold:0.1,rootMargin:'0px 0px -6% 0px'});
+  els.forEach(function(el,i){
+    el.style.transitionDelay=(i*80)+'ms';
+    io.observe(el);
+  });
+  initTilt();
+}
+
+/* ---- 3D Tilt on cards ---- */
+function initTilt(){
+  document.querySelectorAll('[data-tilt]').forEach(function(card){
+    var glow=card.querySelector('.card-glow');
+    card.addEventListener('mouseenter',function(){card.style.transition='box-shadow .4s var(--ease)'});
+    card.addEventListener('mousemove',function(e){
+      var rect=card.getBoundingClientRect();
+      var x=e.clientX-rect.left,y=e.clientY-rect.top;
+      var cx=rect.width/2,cy=rect.height/2;
+      var rx=(y-cy)/cy*-6,ry=(x-cx)/cx*6;
+      card.style.transform='perspective(800px) rotateX('+rx+'deg) rotateY('+ry+'deg) scale3d(1.02,1.02,1.02)';
+      card.style.boxShadow='0 20px 60px rgba(0,0,0,.1)';
+      if(glow){glow.style.left=x+'px';glow.style.top=y+'px'}
+    });
+    card.addEventListener('mouseleave',function(){
+      card.style.transition='transform .6s var(--ease), box-shadow .6s var(--ease)';
+      card.style.transform='';card.style.boxShadow='';
+    });
+  });
+}
+
+/* ---- CS2 News from Steam API ---- */
+var FALLBACK_NEWS=[
+  {title:'Counter-Strike 2 Update',date:1780013843,contents:'Added ability to bookmark stickers in Cologne 2026 Shop. Added convar r_spectator_flashbang_opacity.'},
+  {title:'IEM Cologne 2026',date:1779410446,contents:'The IEM Cologne 2026 Major is fast approaching. Teams are making final adjustments and fine-tuning their strats.'},
+  {title:'Counter-Strike 2 Update',date:1779410434,contents:'The IEM Cologne 2026 Major Hub is now available. Visit the hub to purchase tournament items and play Pick\'Em.'},
+  {title:'Counter-Strike 2 Update',date:1779318374,contents:'Cache: Adjusted player and grenade collision. Adjusted material blending to improve footstep sounds.'},
+  {title:'Counter-Strike 2 Update',date:1779147368,contents:'Fixed post-processing glitch when switching spectator targets. Fixed stuck x-ray silhouette on player death.'}
+];
+function loadNews(){
+  renderNews(FALLBACK_NEWS);
+  fetch('https://api.steampowered.com/ISteamNews/GetNewsForApp/v0002/?appid=730&count=6&maxlength=180&format=json')
+    .then(function(r){return r.json()})
+    .then(function(d){if(d.appnews&&d.appnews.newsitems)renderNews(d.appnews.newsitems.slice(0,6))})
+    .catch(function(){});
+}
+function renderNews(items){
+  var el=document.getElementById('newsList');if(!el)return;
+  el.innerHTML=items.map(function(n,i){
+    var d=new Date(n.date*1000);
+    var ds=String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+    var txt=(n.contents||'').replace(/\\/g,' ').replace(/<[^>]+>/g,'').trim();
+    return '<a class="news-item" style="animation-delay:'+(i*60)+'ms" target="_blank" rel="noopener"'+(n.url?' href="'+n.url+'"':'')+'>'
+      +'<span class="news-date"><span class="news-dot"></span>'+ds+'</span>'
+      +'<span class="news-title">'+n.title+'</span>'
+      +'<span class="news-desc">'+txt+'</span>'
+      +'</a>';
+  }).join('');
+}
+
+/* 定义就绪后再启动：FALLBACK_NEWS 已赋值，兜底新闻可立即渲染 */
+initAnimations();
+loadNews();
+</script>
+</body>
+</html>
